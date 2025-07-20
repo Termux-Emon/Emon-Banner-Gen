@@ -1,39 +1,39 @@
 #!/data/data/com.termux/files/usr/bin/bash
 
-# Colors
-RED="\033[1;31m"
+# Color Codes
 GRN="\033[1;32m"
 CYN="\033[1;36m"
-YEL="\033[1;33m"
 NC="\033[0m"
 
-# Ask for banner text
+# Check & install requirements
+for pkg in figlet lolcat neofetch; do
+  if ! command -v $pkg &> /dev/null; then
+    echo -e "${CYN}📦 Installing $pkg...${NC}"
+    pkg install $pkg -y > /dev/null 2>&1
+  fi
+done
+
+# Prompt
 clear
-echo -e "${CYN}🛠️  EMon Banner Generator${NC}"
-echo -n -e "${YEL}🔤 Enter your banner text: ${NC}"
-read text
+echo -e "${CYN}🛠️  EMon Hacker Banner Generator${NC}"
+read -p "🔤 Enter your banner text: " text
 
-echo -n -e "${YEL}🎨 Choose color [red/green/cyan/yellow]: ${NC}"
-read color
+# Save banner script
+cat > ~/.banner <<EOF
+clear
+echo -e "\033[1;32m"
+figlet -w 80 "$text" | lolcat
+echo -e "\033[0m"
+neofetch
+echo -e "\033[1;36m[✔] System ready, Commander $text\033[0m"
+EOF
 
-# Set color
-case $color in
-  red) COLOR=$RED ;;
-  green) COLOR=$GRN ;;
-  cyan) COLOR=$CYN ;;
-  yellow) COLOR=$YEL ;;
-  *) COLOR=$GRN ;;
-esac
-
-# Save banner to ~/.banner
-echo -e "clear\nfiglet \"$text\" | lolcat\nneofetch" > ~/.banner
-
-# Add autoload to ~/.bashrc if not already there
-if ! grep -q ".banner" ~/.bashrc; then
-  echo -e "\n# Load EMon Banner\nbash ~/.banner" >> ~/.bashrc
+# Add to .bashrc if not present
+if ! grep -q "~/.banner" ~/.bashrc; then
+  echo -e "\n# Load EMon banner\nbash ~/.banner" >> ~/.bashrc
 fi
 
-# Show preview
-echo -e "${GRN}\n✅ Banner installed! Restart Termux to see it.${NC}"
+# Preview
+echo -e "${GRN}\n✅ Banner Installed! Restart Termux to see it.${NC}"
 sleep 1
 bash ~/.banner
